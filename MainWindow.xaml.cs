@@ -24,6 +24,7 @@ namespace ImageTextConverter
     public partial class MainWindow : Window
     {
         string resPath = "result.txt";
+        string namesPath = "names.txt";
         int currentRow = -1;
         string[] currentFile;
         enum ImgType
@@ -50,7 +51,17 @@ namespace ImageTextConverter
             if (tip.Length > 0) File.AppendAllText("logs.txt", "[Tip: " + tip.TrimEnd('.') + "]");
             File.AppendAllText("logs.txt", Environment.NewLine);
         }
-
+        string GetFileName(string path)
+        {
+            for (int i = path.Length - 1; i >= 0; i--)
+            {
+                if (path[i] == '\\')
+                {
+                    return path.Substring(i + 1, path.Length - i - 1);
+                }
+            }
+            return "NO_NAME";
+        }
         string[] GetKnownTypes()
         {
             return new string[] { ".png", ".jpg", ".jpeg", ".bmp" };
@@ -61,22 +72,6 @@ namespace ImageTextConverter
             if ((int)type < types.Length && (int)type > 0)
                 return types[(int)type];
             return types[0];
-        }
-        bool TypeKnown(string fname)
-        {
-            string[] knownTypes = GetKnownTypes();
-            for (int i = 0; i < knownTypes.Length; i++)
-                if (fname.Substring(fname.Length - knownTypes[i].Length, knownTypes[i].Length) == knownTypes[i]) return true;
-            return false;
-        }
-        List<string> BytesToFile(List<byte[]> bytes)
-        {
-            List<string> strfrombytes = new List<string>();
-            for (int i = 0; i < bytes.Count; i++)
-            {
-                strfrombytes.Add(Encoding.UTF8.GetString(bytes[i], i, bytes[i].Length));//Here was a problem when adding by index
-            }
-            return strfrombytes;
         }
         string FileToBase64(string path)
         {
@@ -115,14 +110,30 @@ namespace ImageTextConverter
             while (ArrayContains(filepaths, "Images\\" + i + GetImgType(it))) i++;
             return i;
         }
-        void CreateFile(List<byte[]> bytearr, ImgType type = ImgType.PNG)
+        string GetFileNameByIndex(int index, string[] filesNames = null)
         {
             try
             {
+                if (filesNames == null) filesNames = File.ReadAllLines(namesPath);
+                string[] names = filesNames;
+                if (index >= names.Length)
+                    return GetStartName(ImgType.PNG).ToString();
+                return names[index];
+            }
+            catch
+            {
+                return "NO_SUCH_FILE";
+            }
+        }
+        void CreateFiles(List<byte[]> bytearr, ImgType type = ImgType.PNG)
+        {
+            string[] names = File.ReadAllLines(namesPath);
+            try
+            {
                 Directory.CreateDirectory("Images");
-                for (int i = 1; i < bytearr.Count; i++)
+                for (int i = 0; i < bytearr.Count; i++)
                 {
-                    using (var imageFile = new FileStream("Images/" + (i + GetStartName() - 1) + GetImgType(type), FileMode.Create))
+                    using (var imageFile = new FileStream("Images/" + GetFileNameByIndex(i, names), FileMode.Create))
                     {
                         imageFile.Write(bytearr[i], 0, bytearr[i].Length);
                         imageFile.Flush();
@@ -131,7 +142,7 @@ namespace ImageTextConverter
             }
             catch (Exception ex)
             {
-                WriteToLog("Failed to restore file.", new StackTrace().GetFrame(0).GetMethod().Name, ex.Message);
+                WriteToLog("Failed to restore files.", new StackTrace().GetFrame(0).GetMethod().Name, ex.Message);
             }
         }
         private void btnChooseFolder_Click(object sender, RoutedEventArgs e)
@@ -142,8 +153,11 @@ namespace ImageTextConverter
                 if (fbd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     if (!File.Exists(resPath)) File.Create(resPath).Close();
+                    if (!File.Exists(namesPath)) File.Create(namesPath).Close();
                     var paths = Directory.GetFiles(fbd.SelectedPath);
                     File.WriteAllLines(resPath, FilesToBase64(paths));
+                    for (int i = 0; i < paths.Length; i++) paths[i] = GetFileName(paths[i]);
+                    File.WriteAllLines(namesPath, paths);
                     currentFile = File.ReadAllLines(resPath);
                     currentRow = 0;
                 }
@@ -162,7 +176,9 @@ namespace ImageTextConverter
                 if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     if (!File.Exists(resPath)) File.Create(resPath).Close();
+                    if (!File.Exists(namesPath)) File.Create(namesPath).Close();
                     File.WriteAllText(resPath, FileToBase64(ofd.FileName) + Environment.NewLine);
+                    File.WriteAllText(namesPath, GetFileName(ofd.FileName) + Environment.NewLine);
                     currentFile = File.ReadAllLines(resPath);
                     currentRow = 0;
                 }
@@ -178,7 +194,7 @@ namespace ImageTextConverter
             try
             {
                 List<byte[]> bytes = Base64ToBytes(currentFile);
-                CreateFile(bytes);
+                CreateFiles(bytes);
             }
             catch (Exception ex)
             {
@@ -192,7 +208,6 @@ namespace ImageTextConverter
                 currentRow--;
                 if (currentRow < 0)
                     currentRow = currentFile.Length - 1;
-
                 string thisbase64 = currentFile[currentRow];
                 byte[] bytes = Convert.FromBase64String(thisbase64);
                 imgFile.Source = BytesToBitmap(bytes);
@@ -215,7 +230,6 @@ namespace ImageTextConverter
                 currentRow++;
                 if (currentRow >= currentFile.Length)
                     currentRow = 0;
-
                 string thisbase64 = currentFile[currentRow];
                 byte[] bytes = Convert.FromBase64String(thisbase64);
                 imgFile.Source = BytesToBitmap(bytes);
@@ -279,5 +293,23 @@ namespace ImageTextConverter
             }
 
         }
+        #region Code not used 
+        bool TypeKnown(string fname)
+        {
+            string[] knownTypes = GetKnownTypes();
+            for (int i = 0; i < knownTypes.Length; i++)
+                if (fname.Substring(fname.Length - knownTypes[i].Length, knownTypes[i].Length) == knownTypes[i]) return true;
+            return false;
+        }
+        List<string> BytesToFile(List<byte[]> bytes)
+        {
+            List<string> strfrombytes = new List<string>();
+            for (int i = 0; i < bytes.Count; i++)
+            {
+                strfrombytes.Add(Encoding.UTF8.GetString(bytes[i], i, bytes[i].Length));//Here was a problem when adding by index
+            }
+            return strfrombytes;
+        }
+        #endregion
     }
 }

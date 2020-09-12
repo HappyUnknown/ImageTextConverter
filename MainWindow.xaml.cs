@@ -108,6 +108,7 @@ namespace ImageTextConverter
             int i = 1;
             string[] filepaths = Directory.GetFiles("Images");
             while (ArrayContains(filepaths, "Images\\" + i + GetImgType(it))) i++;
+            WriteToLog("Last name possible: " + i.ToString(), new StackTrace().GetFrame(0).GetMethod().Name);
             return i;
         }
         string GetFileNameByIndex(int index, string[] filesNames = null)
@@ -122,6 +123,7 @@ namespace ImageTextConverter
             }
             catch
             {
+                WriteToLog("Can't find name of file on index " + index, new StackTrace().GetFrame(0).GetMethod().Name);
                 return "NO_SUCH_FILE";
             }
         }
@@ -133,7 +135,9 @@ namespace ImageTextConverter
                 Directory.CreateDirectory("Images");
                 for (int i = 0; i < bytearr.Count; i++)
                 {
-                    using (var imageFile = new FileStream("Images/" + GetFileNameByIndex(i, names), FileMode.Create))
+                    string fname = GetFileNameByIndex(i, names);
+                    if (File.Exists(fname)) { fname = GetStartName(ImgType.PNG).ToString(); WriteToLog(fname + " file exists. Possible numeric name given.", new StackTrace().GetFrame(0).GetMethod().Name); }
+                    using (var imageFile = new FileStream("Images/" + fname, FileMode.Create))
                     {
                         imageFile.Write(bytearr[i], 0, bytearr[i].Length);
                         imageFile.Flush();
@@ -175,8 +179,8 @@ namespace ImageTextConverter
                 OpenFileDialog ofd = new OpenFileDialog();
                 if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    if (!File.Exists(resPath)) File.Create(resPath).Close();
-                    if (!File.Exists(namesPath)) File.Create(namesPath).Close();
+                    if (!File.Exists(resPath)) { File.Create(resPath).Close(); WriteToLog("Images-containing file created.", new StackTrace().GetFrame(0).GetMethod().Name); }
+                    if (!File.Exists(namesPath)) { File.Create(namesPath).Close(); WriteToLog("Image names file created.", new StackTrace().GetFrame(0).GetMethod().Name); }
                     File.WriteAllText(resPath, FileToBase64(ofd.FileName) + Environment.NewLine);
                     File.WriteAllText(namesPath, GetFileName(ofd.FileName) + Environment.NewLine);
                     currentFile = File.ReadAllLines(resPath);
@@ -195,6 +199,7 @@ namespace ImageTextConverter
             {
                 List<byte[]> bytes = Base64ToBytes(currentFile);
                 CreateFiles(bytes);
+                if (Directory.GetFiles("Images").Length == 0) { WriteToLog("Failed while restoring images from text. Try choosing smaller image directory (or image).", new StackTrace().GetFrame(0).GetMethod().Name); System.Windows.MessageBox.Show("Check your logs if you noticed some issues."); };
             }
             catch (Exception ex)
             {

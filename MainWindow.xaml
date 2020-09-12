@@ -1,0 +1,26 @@
+﻿<Window x:Class="ImageTextConverter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ImageTextConverter"
+        mc:Ignorable="d"
+        Title="Converter" Height="540" Width="526">
+    <Grid>
+        <StackPanel>
+            <WrapPanel>
+                <Button x:Name="btnChooseFile" Click="btnChooseFile_Click" Content="File" Width="50" Height="50"/>
+                <Button x:Name="btnChooseFolder" Click="btnChooseFolder_Click" Content="Folder" Width="50" Height="50"/>
+                <Button x:Name="btnRestoreFiles" Click="btnRestoreFiles_Click" Content="Restore"  Width="100" Height="50" Margin= "0 0 60 0"/>
+                <TextBox x:Name="tbWidth" Width="100" FontSize="23"/>
+                <Button x:Name="btnApply" Click="btnApply_Click" Width="50"/>
+                <TextBox x:Name="tbHeight" Width="100" FontSize="23"/>
+            </WrapPanel>
+            <WrapPanel>
+                <Button x:Name="btnPrev" Content="&lt;" Width="30" Click="btnPrev_Click"/>
+                <Image Name="imgFile" Width="450" Height="450"/>
+                <Button x:Name="btnNext" Content=">" Width="30" Click="btnNext_Click"/>
+            </WrapPanel>
+        </StackPanel>
+    </Grid>
+</Window>

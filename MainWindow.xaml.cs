@@ -24,6 +24,7 @@ namespace ImageTextConverter
     public partial class MainWindow : Window
     {
         string resPath = "result.txt";
+        string setPath = "settings.txt";
         string namesPath = "names.txt";
         int currentRow = -1;
         string[] currentFile;
@@ -37,9 +38,15 @@ namespace ImageTextConverter
         public MainWindow()
         {
             InitializeComponent();
-            File.Create("logs.txt").Close();
-            if (!File.Exists(resPath)) File.Create(resPath).Close();
-            currentFile = File.ReadAllLines(resPath);
+            try
+            {
+                resPath = GetLastDictionary();
+                currentFile = File.ReadAllLines(resPath);
+                File.Create("logs.txt").Close();
+                if (!File.Exists(setPath)) File.Create(setPath);
+                if (!File.Exists(resPath)) File.Create(resPath).Close();
+            }
+            catch (Exception ex) { WriteToLog("Program files check/creation error.", "MainConstructor", ex.Message); }
 
             btnChooseFile.ToolTip = "Single file would be saved to .txt chosen";
             btnChooseFolder.ToolTip = "Whole folder would be saved to .txt chosen";
@@ -221,7 +228,7 @@ namespace ImageTextConverter
             {
                 imgFile.Source = null;
                 if (currentFile.Length == 0) { System.Windows.Forms.MessageBox.Show("Current file is empty"); WriteToLog("Failed to switch to previous item because file was not chosen or it is empty for some reason."); }
-                else WriteToLog("Failed to switch to previous item.", new StackTrace().GetFrame(0).GetMethod().Name, ex.Message);
+                else WriteToLog("Failed to switch to previous item.", "Prev", ex.Message);
             }
         }
         private void btnPrev_Click(object sender, RoutedEventArgs e)
@@ -258,7 +265,7 @@ namespace ImageTextConverter
             {
                 imgFile.Source = null;
                 if (currentFile.Length == 0) { System.Windows.Forms.MessageBox.Show("Current file is empty"); WriteToLog("Failed to switch to next item because file was not chosen or it is empty for some reason."); }
-                else WriteToLog("Failed to switch to next item.", new StackTrace().GetFrame(0).GetMethod().Name, ex.Message);
+                else WriteToLog("Failed to switch to next item.", "Next", ex.Message);
             }
         }
         private void btnNext_Click(object sender, RoutedEventArgs e)
@@ -332,6 +339,63 @@ namespace ImageTextConverter
             }
 
         }
+        #region Settings
+        string GetLastDictionary()
+        {
+            try
+            {
+                string[] settings = File.ReadAllLines(setPath);
+                foreach (string setting in settings)
+                {
+                    string[] settingParts = setting.Split('>');
+                    if (settingParts[0] == "LastDictionary" && File.Exists(settingParts[1])) { WriteToLog("LastDictionary setting: " + settingParts[1], new StackTrace().GetFrame(0).GetMethod().Name); return settingParts[1]; }
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteToLog("Can't get last dictionary path from settings.", new StackTrace().GetFrame(0).GetMethod().Name, ex.Message, "Try changing dictionary again.");
+            }
+            return resPath;
+        }
+        void AddSetting(string setname, string definition = "-", int addbeforeidx = 0)
+        {
+            if (!File.Exists(setPath)) File.Create(setPath);
+            List<string> settings = File.ReadAllLines(setPath).ToList();
+            foreach (string setting in settings)            //Uniqueness check
+            {
+                if (setting.Split('>')[0] == setname) return;
+            }
+            settings.Insert(addbeforeidx, setname.Replace('>', ' ') + ">" + definition.Replace('>', ' '));
+            WriteToLog(setname + " setting added", new StackTrace().GetFrame(0).GetMethod().Name);
+            File.WriteAllLines(setPath, settings.ToArray());
+        }
+        bool EditSettings(string rowName, string definition)
+        {
+            string[] settings = File.ReadAllLines(setPath);
+            for (int i = 0; i < settings.Length; i++)
+            {
+                string[] rowCont = settings[i].Split('>');
+                if (rowCont[0] == rowName)
+                {
+                    settings[i] = rowCont[0] + ">" + definition;
+                    File.WriteAllLines(setPath, settings);
+                    return true;
+                }
+            }
+            return false;
+        }
+        bool EditSettings(int rowidx, string definition)
+        {
+            string[] filecont = File.ReadAllLines(setPath);
+            if (rowidx >= filecont.Length) return false;
+            string[] rowCont = filecont[rowidx].Split('>');
+            if (rowCont.Length <= 1) WriteToLog("It seems, that setting you are interested in contains an error. [Tip: Try clearing settings file.]", new StackTrace().GetFrame(0).GetMethod().Name);
+            WriteToLog(rowCont[0] + " definiton edited from " + rowCont[1] + " to " + definition, new StackTrace().GetFrame(0).GetMethod().Name);
+            filecont[rowidx] = rowCont[0] + ">" + definition;
+            File.WriteAllLines(setPath, filecont);
+            return true;
+        }
+        #endregion
         #region Code not used 
         bool TypeKnown(string fname)
         {
@@ -366,6 +430,7 @@ namespace ImageTextConverter
                     btnChangeResult.ToolTip = "Current: \"" + resPath + "\"";
                     currentFile = File.ReadAllLines(resPath);
                     currentRow = -1;
+                    if (!EditSettings("LastDictionary", ofd.FileName)) AddSetting("LastDictionary", ofd.FileName);
                 }
             }
             catch (Exception ex)

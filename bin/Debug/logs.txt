@@ -1,0 +1,3 @@
+[19.09.2020 20:09:08] -> Failed to switch to next item because file was not chosen or it is empty for some reason.
+[19.09.2020 20:09:11] -> Failed to switch to next item because file was not chosen or it is empty for some reason.
+[19.09.2020 20:10:15] -> Failed to switch to next item because file was not chosen or it is empty for some reason.

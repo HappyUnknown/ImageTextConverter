@@ -40,27 +40,21 @@ namespace ImageTextConverter
             File.Create("logs.txt").Close();
             if (!File.Exists(resPath)) File.Create(resPath).Close();
             currentFile = File.ReadAllLines(resPath);
+
+            btnChooseFile.ToolTip = "Single file would be saved to .txt chosen";
+            btnChooseFolder.ToolTip = "Whole folder would be saved to .txt chosen";
+            btnRestoreFiles.ToolTip = "Whole file would be restored to folder \"Images\"";
+            btnChangeResult.ToolTip = "Changes .txt you are using to save or load files";
         }
         void WriteToLog(string message, string functionName = "", string exmsg = "", string tip = "")
         {
             if (!File.Exists("logs.txt")) File.Create("logs.txt").Close();
             File.AppendAllText("logs.txt", "[" + DateTime.Now + "] ");
             if (functionName.Length > 0) File.AppendAllText("logs.txt", functionName + "()");
-            File.AppendAllText("logs.txt", "-> " + message);
+            File.AppendAllText("logs.txt", "-> " + message.TrimEnd('.') + ".");
             if (exmsg.Length > 0) File.AppendAllText("logs.txt", " (" + exmsg + ") ");
             if (tip.Length > 0) File.AppendAllText("logs.txt", "[Tip: " + tip.TrimEnd('.') + "]");
             File.AppendAllText("logs.txt", Environment.NewLine);
-        }
-        string GetFileName(string path)
-        {
-            for (int i = path.Length - 1; i >= 0; i--)
-            {
-                if (path[i] == '\\')
-                {
-                    return path.Substring(i + 1, path.Length - i - 1);
-                }
-            }
-            return "NO_NAME";
         }
         string[] GetKnownTypes()
         {
@@ -103,13 +97,17 @@ namespace ImageTextConverter
             }
             return false;
         }
-        int GetStartName(ImgType it = ImgType.PNG)
+        string GetStartName(ImgType it = ImgType.PNG)
         {
             int i = 1;
             string[] filepaths = Directory.GetFiles("Images");
-            while (ArrayContains(filepaths, "Images\\" + i + GetImgType(it))) i++;
-            WriteToLog("Last name possible: " + i.ToString(), new StackTrace().GetFrame(0).GetMethod().Name);
-            return i;
+            for (int fp = 0; fp < filepaths.Length; fp++)
+            {
+                filepaths[fp] = filepaths[fp].Replace("Images\\", "");
+            }
+            while (ArrayContains(filepaths, i + GetImgType(it))) { i++; }
+            WriteToLog("Last name possible: " + i + GetImgType(it) + " ~\"" + filepaths[i] + "\"!=\"" + i + GetImgType(it) + "\"~ ", new StackTrace().GetFrame(0).GetMethod().Name);
+            return i + GetImgType(it);
         }
         string GetFileNameByIndex(int index, string[] filesNames = null)
         {
@@ -129,10 +127,10 @@ namespace ImageTextConverter
         }
         void CreateFiles(List<byte[]> bytearr, ImgType type = ImgType.PNG)
         {
-            string[] names = File.ReadAllLines(namesPath);
+            Directory.CreateDirectory("Images");
             try
             {
-                Directory.CreateDirectory("Images");
+                string[] names = File.ReadAllLines(namesPath);
                 for (int i = 0; i < bytearr.Count; i++)
                 {
                     string fname = GetFileNameByIndex(i, names);
@@ -142,6 +140,7 @@ namespace ImageTextConverter
                         imageFile.Write(bytearr[i], 0, bytearr[i].Length);
                         imageFile.Flush();
                     }
+                    WriteToLog("File created \"" + fname + "\"", new StackTrace().GetFrame(0).GetMethod().Name);
                 }
             }
             catch (Exception ex)
@@ -164,6 +163,7 @@ namespace ImageTextConverter
                     File.WriteAllLines(namesPath, paths);
                     currentFile = File.ReadAllLines(resPath);
                     currentRow = 0;
+                    WriteToLog("Folder chosen to be written to dictionary: \"" + fbd.SelectedPath + "\"", new StackTrace().GetFrame(0).GetMethod().Name);
                 }
             }
             catch (Exception ex)
@@ -182,9 +182,9 @@ namespace ImageTextConverter
                     if (!File.Exists(resPath)) { File.Create(resPath).Close(); WriteToLog("Images-containing file created.", new StackTrace().GetFrame(0).GetMethod().Name); }
                     if (!File.Exists(namesPath)) { File.Create(namesPath).Close(); WriteToLog("Image names file created.", new StackTrace().GetFrame(0).GetMethod().Name); }
                     File.WriteAllText(resPath, FileToBase64(ofd.FileName) + Environment.NewLine);
-                    File.WriteAllText(namesPath, GetFileName(ofd.FileName) + Environment.NewLine);
                     currentFile = File.ReadAllLines(resPath);
                     currentRow = 0;
+                    WriteToLog("File chosen to be written to dictionary: \"" + ofd.FileName + "\"", new StackTrace().GetFrame(0).GetMethod().Name);
                 }
             }
             catch (Exception ex)
@@ -226,12 +226,27 @@ namespace ImageTextConverter
         }
         private void btnPrev_Click(object sender, RoutedEventArgs e)
         {
-            Prev();
+            try
+            {
+                //WriteToLog("Loading prev from -> " + resPath);
+                if (currentFile.Length == 0)
+                {
+                    currentFile = File.ReadAllLines(resPath);
+                    if (currentFile.Length > 0)//If result file was empty that moment
+                        WriteToLog(resPath + " content cached.", new StackTrace().GetFrame(0).GetMethod().Name);
+                }
+                Prev();
+            }
+            catch (Exception ex)
+            {
+                WriteToLog("Failed to switch to previous item, because list empty.", "btnPrev_Click", ex.Message, "Try relaunching app.");
+            }
         }
         void Next()
         {
             try
             {
+                //WriteToLog("Loading next from -> " + resPath);
                 currentRow++;
                 if (currentRow >= currentFile.Length)
                     currentRow = 0;
@@ -248,7 +263,20 @@ namespace ImageTextConverter
         }
         private void btnNext_Click(object sender, RoutedEventArgs e)
         {
-            Next();
+            try
+            {
+                if (currentFile.Length == 0)
+                {
+                    currentFile = File.ReadAllLines(resPath);
+                    if (currentFile.Length > 0)//If result file was empty that moment
+                        WriteToLog(resPath + " content cached.", new StackTrace().GetFrame(0).GetMethod().Name);
+                }
+                Next();
+            }
+            catch (Exception ex)
+            {
+                WriteToLog("Failed to switch to next item, because list empty.", "btnNext_Click", ex.Message, "Try relaunching app.");
+            }
         }
         #region Bitmap
         public BitmapImage BytesToBitmap(byte[] array)
@@ -266,31 +294,37 @@ namespace ImageTextConverter
         #endregion
         private void btnApply_Click(object sender, RoutedEventArgs e)
         {
-            int parsed;
+            int screenWidth = Screen.PrimaryScreen.Bounds.Width;
+            int screenHeight = Screen.PrimaryScreen.Bounds.Height;
+            double parsed;
             try
             {
-                if (int.TryParse(tbWidth.Text, out parsed))
+                if (double.TryParse(tbWidth.Text, out parsed))
                 {
+                    if (parsed + parsed / 9 + parsed / 9 + 2 > screenWidth) parsed = screenWidth /*- screenWidth / 9 - 2*/;
                     imgFile.Width = parsed;
                     btnRestoreFiles.Width = parsed / 4.5;
                     btnChooseFile.Width = parsed / 9;
                     btnChooseFolder.Width = parsed / 9;
+                    btnChangeResult.Width = parsed / 9;
                     btnApply.Width = parsed / 9;
                     tbHeight.Width = parsed / 4.5;
                     tbWidth.Width = parsed / 4.5;
                     btnNext.Width = parsed / 9;
                     btnPrev.Width = parsed / 9;
-                    btnRestoreFiles.Margin = new Thickness(0, 0, parsed / 15 + btnPrev.Width * 1.4, 0);
+                    btnChangeResult.Margin = new Thickness(0, 0, parsed / 15 + btnPrev.Width * 0.4, 0);
                     Width = btnNext.Width + btnPrev.Width + parsed + 16;
                 }
-                if (int.TryParse(tbHeight.Text, out parsed))
+                if (double.TryParse(tbHeight.Text, out parsed))
                 {
+                    if (parsed + btnChooseFile.Height + 20 > screenHeight) parsed = screenHeight;
                     imgFile.Height = parsed;
                     btnNext.Height = parsed;
                     btnPrev.Height = parsed;
-
                     Height = parsed + btnRestoreFiles.Height + 39;
+
                 }
+                WriteToLog("Max sizes for image were changed to W:" + imgFile.Width + " H:" + imgFile.Height, new StackTrace().GetFrame(0).GetMethod().Name);
             }
             catch (Exception ex)
             {
@@ -316,5 +350,69 @@ namespace ImageTextConverter
             return strfrombytes;
         }
         #endregion
+
+        private void btnChangeResult_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            try
+            {
+                if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    WriteToLog("Resulting file path changed from: \"" + Environment.CurrentDirectory + resPath + "\" to \"" + ofd.FileName + "\" [Tip: if dictionary is not changing anyway - then try reopening the app]", new StackTrace().GetFrame(0).GetMethod().Name);
+                    resPath = ofd.FileName;
+                    if (!File.Exists(GetFileHome(resPath) + "names.txt"))
+                        File.Create(GetFileHome(resPath) + "names.txt");
+                    namesPath = GetFileHome(resPath) + "names.txt";
+                    btnChangeResult.ToolTip = "Current: \"" + resPath + "\"";
+                    currentFile = File.ReadAllLines(resPath);
+                    currentRow = -1;
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteToLog("Fail on resulting txt change.", new StackTrace().GetFrame(0).GetMethod().Name, ex.Message);
+            }
+        }
+        public double GetFileSize(string path)
+        {
+            FileInfo fi = new FileInfo(path);
+            return (double)fi.Length;
+        }
+        public double GetFileSize(OpenFileDialog ofd)
+        {
+            FileInfo fi = new FileInfo(ofd.FileName);
+            return fi.Length;
+        }
+        public string GetFileHome(string path)
+        {
+            FileInfo fi = new FileInfo(path);
+            return fi.FullName.Substring(0, fi.FullName.Length - fi.Name.Length);
+        }
+        public string GetFilePath(string path)
+        {
+            FileInfo fi = new FileInfo(path);
+            return fi.Name;
+        }
+        public string GetFileHome(OpenFileDialog ofd)
+        {
+            FileInfo fi = new FileInfo(ofd.FileName);
+            return fi.FullName.Substring(0, fi.FullName.Length - fi.Name.Length);
+        }
+        public string GetFilePath(OpenFileDialog ofd)
+        {
+            FileInfo fi = new FileInfo(ofd.FileName);
+            return fi.FullName;
+        }
+        string GetFileName(string path)
+        {
+            for (int i = path.Length - 1; i >= 0; i--)
+            {
+                if (path[i] == '\\')
+                {
+                    return path.Substring(i + 1, path.Length - i - 1);
+                }
+            }
+            return "NO_NAME";
+        }
     }
 }

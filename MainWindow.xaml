@@ -11,7 +11,8 @@
             <WrapPanel>
                 <Button x:Name="btnChooseFile" Click="btnChooseFile_Click" Content="File" Width="50" Height="50"/>
                 <Button x:Name="btnChooseFolder" Click="btnChooseFolder_Click" Content="Folder" Width="50" Height="50"/>
-                <Button x:Name="btnRestoreFiles" Click="btnRestoreFiles_Click" Content="Restore"  Width="100" Height="50" Margin= "0 0 60 0"/>
+                <Button x:Name="btnRestoreFiles" Click="btnRestoreFiles_Click" Content="Restore"  Width="100" Height="50"/>
+                <Button x:Name="btnChangeResult" Click="btnChangeResult_Click" Content="Change" Width="50" Height="50" Margin="0 0 10 0"/>
                 <TextBox x:Name="tbWidth" Width="100" FontSize="23"/>
                 <Button x:Name="btnApply" Click="btnApply_Click" Width="50"/>
                 <TextBox x:Name="tbHeight" Width="100" FontSize="23"/>

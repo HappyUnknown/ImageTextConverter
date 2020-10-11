@@ -102,17 +102,6 @@ namespace ImageTextConverter
             if (tip.Length > 0) File.AppendAllText("logs.txt", "[Tip: " + tip.TrimEnd('.') + "]");
             File.AppendAllText("logs.txt", Environment.NewLine);
         }
-        string[] GetKnownTypes()
-        {
-            return new string[] { ".png", ".jpg", ".jpeg", ".bmp" };
-        }
-        string GetImgType(ImgType type)
-        {
-            string[] types = GetKnownTypes();
-            if ((int)type < types.Length && (int)type > 0)
-                return types[(int)type];
-            return types[0];
-        }
         #region Convertation
         string FileToBase64(string path)
         {
@@ -200,35 +189,6 @@ namespace ImageTextConverter
             }
             return i.ToString() + type;
         }
-        #region 4vids
-        string GetStartName(VidType vt = VidType.MP4)
-        {
-            int i = 1;
-            try
-            {
-                string[] filepaths = Directory.GetFiles("Images");
-                for (int fp = 0; fp < filepaths.Length; fp++)
-                {
-                    filepaths[fp] = filepaths[fp].Replace("Images\\", "");
-                }
-                while (ArrayContains(filepaths, i + GetVidType(vt))) { i++; }
-                WriteToLog("Last name possible: " + i + GetVidType(vt), new StackTrace());                //WriteToLog("Last name possible: " + i + GetImgType(it) + " ~\"" + filepaths[i] + "\"!=\"" + i + GetImgType(it) + "\"~ ", new StackTrace());
-                return i + GetVidType(vt);
-            }
-            catch (Exception ex)
-            {
-                WriteToLog("Failed to give possible name.", new StackTrace(), ex);
-            }
-            return i + GetVidType(vt);
-        }
-        string GetVidType(VidType type)
-        {
-            string[] types = GetKnownTypes();
-            if ((int)type < types.Length && (int)type > 0)
-                return types[(int)type];
-            return types[0];
-        }
-        #endregion
         string GetFileNameByIndex(int index, string[] filesNames)
         {
             try
@@ -497,6 +457,7 @@ namespace ImageTextConverter
         {
             try
             {
+                if (!File.Exists(resPath)) File.Create(resPath).Close();
                 if (currentFile.Length == 0) LoadFile();
                 Prev();
             }
@@ -509,6 +470,7 @@ namespace ImageTextConverter
         {
             try
             {
+                if (!File.Exists(resPath)) File.Create(resPath).Close();
                 if (currentFile.Length == 0) LoadFile();
                 Next();
             }
@@ -768,13 +730,6 @@ namespace ImageTextConverter
         }
         #endregion
         #region Code not used 
-        bool TypeKnown(string fname)
-        {
-            string[] knownTypes = GetKnownTypes();
-            for (int i = 0; i < knownTypes.Length; i++)
-                if (fname.Substring(fname.Length - knownTypes[i].Length, knownTypes[i].Length) == knownTypes[i]) return true;
-            return false;
-        }
         List<string> BytesToFile(List<byte[]> bytes)
         {
             List<string> strfrombytes = new List<string>();

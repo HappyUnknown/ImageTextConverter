@@ -44,8 +44,8 @@ namespace ImageTextConverter
         }
         void SetDefaults()
         {
-            btnChooseFile.Width = 50;
-            btnChooseFile.Height = 25;
+            btnLoadFile.Width = 50;
+            btnLoadFile.Height = 25;
             btnChooseFolder.Width = 50;
             btnChooseFolder.Height = 25;
             btnChangeResult.Width = 50;
@@ -85,7 +85,7 @@ namespace ImageTextConverter
             }
             catch (Exception ex) { WriteToLog("Program files check/creation error.", new StackTrace(), ex); }
             SetDefaults();
-            btnChooseFile.ToolTip = "Single file would be saved to *.txt chosen";
+            btnLoadFile.ToolTip = "Single file would be saved to *.txt chosen";
             btnChooseFolder.ToolTip = "Whole folder would be saved to *.txt chosen";
             btnRestoreFiles.ToolTip = "Whole file would be restored to folder \"Images\"";
             btnChangeResult.ToolTip = "Changes *.txt you are using to save or load files";
@@ -320,7 +320,7 @@ namespace ImageTextConverter
                 System.Windows.MessageBox.Show("This error usually shows up due to very large memory usage. Choose smaller folder.");
             }
         }
-        private void btnChooseFile_Click(object sender, RoutedEventArgs e)
+        private void btnAddFile_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -400,6 +400,7 @@ namespace ImageTextConverter
         }
         void Prev()
         {
+            btnLoadFile.Background = Brushes.LightGray;
             try
             {
                 currentRow--;
@@ -407,18 +408,12 @@ namespace ImageTextConverter
                     currentRow = currentFile.Length - 1;
                 try
                 {
-                    ShowPrimary();
+                    LoadPrimary();
                 }
                 catch
                 {
-                    try
-                    {
-                        ShowSecondaryCached();
-                    }
-                    catch
-                    {
-                        FilePicked(); WriteToLog("Couldn't process as media. Saved file separately.");
-                    }
+                    btnLoadFile.Background = Brushes.Teal;
+                    ShowSecondary();
                 }
             }
             catch (Exception ex)
@@ -429,6 +424,7 @@ namespace ImageTextConverter
         }
         void Next()
         {
+            btnLoadFile.Background = Brushes.LightGray;
             try
             {
                 currentRow++;
@@ -436,15 +432,12 @@ namespace ImageTextConverter
                     currentRow = 0;
                 try
                 {
-                    ShowPrimary();
+                    LoadPrimary();
                 }
                 catch
                 {
-                    try
-                    {
-                        ShowSecondaryCached();
-                    }
-                    catch { FilePicked(); WriteToLog("Couldn't process as media. Saved file separately."); }
+                    btnLoadFile.Background = Brushes.Teal;
+                    ShowSecondary();
                 }
             }
             catch (Exception ex)
@@ -505,7 +498,7 @@ namespace ImageTextConverter
                     else if (vidFile.Visibility == Visibility.Visible)
                         vidFile.Width = appResolution - btnNext.Width * 2;
                     btnRestoreFiles.Width = appResolution * 0.1;
-                    btnChooseFile.Width = appResolution * 0.1;
+                    btnLoadFile.Width = appResolution * 0.1;
                     btnChooseFolder.Width = appResolution * 0.1;
                     btnChangeResult.Width = appResolution * 0.1;
                     btnApply.Width = appResolution * 0.1;
@@ -519,11 +512,11 @@ namespace ImageTextConverter
                 if (double.TryParse(h, out appResolution))
                 {
                     if (appResolution > maxAppHeight) appResolution = maxAppHeight;
-                    appResolution = appResolution - btnChooseFile.Height - btnAddElement.Height;//AppHeight includes unchanging upper panel 
+                    appResolution = appResolution - btnLoadFile.Height - btnAddElement.Height;//AppHeight includes unchanging upper panel 
                     imgFile.Height = appResolution;
                     btnNext.Height = appResolution;
                     btnPrev.Height = appResolution;
-                    Height = appResolution + btnChooseFile.Height + btnAddElement.Height + 36;
+                    Height = appResolution + btnLoadFile.Height + btnAddElement.Height + 36;
                 }
                 WriteToLog("Max sizes for image were changed to W:" + imgFile.Width + " H:" + imgFile.Height, new StackTrace());
             }
@@ -551,7 +544,7 @@ namespace ImageTextConverter
                     btnNext.Width = appResolution * 0.05;
                     btnPrev.Width = appResolution * 0.05;
                     btnRestoreFiles.Width = appResolution * 0.1;
-                    btnChooseFile.Width = appResolution * 0.1;
+                    btnLoadFile.Width = appResolution * 0.1;
                     btnChooseFolder.Width = appResolution * 0.1;
                     btnChangeResult.Width = appResolution * 0.1;
                     btnApply.Width = appResolution * 0.1;
@@ -571,7 +564,7 @@ namespace ImageTextConverter
                     btnAddElement.Height = imgFile.Height * 0.05;
                     btnRemoveElement.Height = imgFile.Height * 0.05;
                     btnRestoreFiles.Height = appResolution * 0.05;
-                    btnChooseFile.Height = appResolution * 0.05;
+                    btnLoadFile.Height = appResolution * 0.05;
                     btnChooseFolder.Height = appResolution * 0.05;
                     btnChangeResult.Height = appResolution * 0.05;
                     btnApply.Height = appResolution * 0.05;
@@ -601,7 +594,7 @@ namespace ImageTextConverter
                     btnNext.Width = appResolution * 0.05;
                     btnPrev.Width = appResolution * 0.05;
                     btnRestoreFiles.Width = appResolution * 0.1;
-                    btnChooseFile.Width = appResolution * 0.1;
+                    btnLoadFile.Width = appResolution * 0.1;
                     btnChooseFolder.Width = appResolution * 0.1;
                     btnChangeResult.Width = appResolution * 0.1;
                     btnApply.Width = appResolution * 0.1;
@@ -615,11 +608,11 @@ namespace ImageTextConverter
                 if (double.TryParse(h, out appResolution))
                 {
                     if (appResolution > maxAppHeight) appResolution = maxAppHeight;
-                    appResolution -= btnChooseFile.Height + btnAddElement.Height;
+                    appResolution -= btnLoadFile.Height + btnAddElement.Height;
                     imgFile.Height = appResolution;
                     btnNext.Height = appResolution;
                     btnPrev.Height = appResolution;
-                    Height = appResolution + btnChooseFile.Height + btnAddElement.Height + 38 /*appResolution=btnPrev+btnAdd*/;
+                    Height = appResolution + btnLoadFile.Height + btnAddElement.Height + 38 /*appResolution=btnPrev+btnAdd*/;
                 }
                 WriteToLog("Max sizes for image were changed to W:" + imgFile.Width + " H:" + imgFile.Height, new StackTrace());
             }
@@ -643,7 +636,7 @@ namespace ImageTextConverter
                     btnNext.Width = appResolution * 0.05;
                     btnPrev.Width = appResolution * 0.05;
                     btnRestoreFiles.Width = appResolution * 0.1;
-                    btnChooseFile.Width = appResolution * 0.1;
+                    btnLoadFile.Width = appResolution * 0.1;
                     btnChooseFolder.Width = appResolution * 0.1;
                     btnChangeResult.Width = appResolution * 0.1;
                     btnApply.Width = appResolution * 0.1;
@@ -662,7 +655,7 @@ namespace ImageTextConverter
                     btnPrev.Height = appResolution * 0.95;
                     btnAddElement.Height = imgFile.Height * 0.05;
                     btnRemoveElement.Height = imgFile.Height * 0.05;
-                    Height = appResolution + btnChooseFile.Height + 38 /*appResolution=btnPrev+btnAdd*/;
+                    Height = appResolution + btnLoadFile.Height + 38 /*appResolution=btnPrev+btnAdd*/;
                 }
                 WriteToLog("Max sizes for image were changed to W:" + imgFile.Width + " H:" + imgFile.Height, new StackTrace());
             }
@@ -887,6 +880,10 @@ namespace ImageTextConverter
             vidFile.Height = imgFile.Height;
             HideAllModes();
             vidFile.Visibility = Visibility.Visible;
+        }
+        void LoadSecondary()
+        {
+            ShowSecondary();
             try
             {
                 vidFile.Source = Base64ToUri(currentFile[currentRow]);
@@ -897,13 +894,9 @@ namespace ImageTextConverter
             }
             WriteToLog("Attempt to display non-image file");
         }
-        void ShowSecondaryCached()
+        void LoadSecondaryCached()
         {
-            imgFile.Source = null;
-            vidFile.Width = imgFile.Width;
-            vidFile.Height = imgFile.Height;
-            HideAllModes();
-            vidFile.Visibility = Visibility.Visible;
+            ShowSecondary();
             CreateVideo("cached.mp4");
             try
             {
@@ -919,15 +912,32 @@ namespace ImageTextConverter
         }
         void ShowPrimary()
         {
-            byte[] bytes = Convert.FromBase64String(currentFile[currentRow]);
             HideAllModes();
             imgFile.Width = vidFile.Width;
             imgFile.Height = vidFile.Height;
             imgFile.Visibility = Visibility.Visible;
             vidFile.Source = null;//Without it - can't display new
-            imgFile.Source = BytesToBitmap(bytes);
+        }
+        void LoadPrimary()
+        {
+            ShowPrimary();
+            imgFile.Source = BytesToBitmap(Convert.FromBase64String(currentFile[currentRow]));
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {/**/}
+
+        private void btnLoadFile_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (imgFile.Visibility == Visibility.Visible) LoadPrimary();
+                else if (vidFile.Visibility == Visibility.Visible) LoadSecondaryCached();
+                btnLoadFile.Background = Brushes.LightGray;
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show("Press \"load\" to preview file. " + ex.Message + " " + GetFileTypeByBase64(currentFile[currentRow]));
+            }
+        }
     }
 }

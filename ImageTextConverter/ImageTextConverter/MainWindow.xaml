@@ -9,10 +9,10 @@
     <Grid>
         <StackPanel>
             <WrapPanel>
-                <Button x:Name="btnChooseFile" Click="btnChooseFile_Click" Content="File" Width="50" Height="25"/>
                 <Button x:Name="btnChooseFolder" Click="btnChooseFolder_Click" Content="Folder" Width="50" Height="25"/>
                 <Button x:Name="btnChangeResult" Click="btnChangeResult_Click" Content="Change" Width="50" Height="25"/>
                 <Button x:Name="btnRestoreFiles" Click="btnRestoreFiles_Click" Content="Restore"  Width="50" Height="25" Margin="0 0 60 0"/>
+                <Button x:Name="btnLoadFile" Click="btnLoadFile_Click"  Content="Load" Width="50" Height="25"/>
                 <TextBox x:Name="tbWidth" Width="100" Height="25" FontSize="18"/>
                 <Button x:Name="btnApply" Click="btnApply_Click" Width="50" Height="25" Content="X"/>
                 <TextBox x:Name="tbHeight" Width="100" Height="25" FontSize="18"/>

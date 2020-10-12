@@ -12,3 +12,4 @@ D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextCo
 D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextConverter\obj\Debug\ImageTextConverter.csproj.CoreCompileInputs.cache
 D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextConverter\obj\Debug\ImageTextConverter.exe
 D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextConverter\obj\Debug\ImageTextConverter.pdb
+D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextConverter\obj\Debug\ImageTextConverter.csprojAssemblyReference.cache

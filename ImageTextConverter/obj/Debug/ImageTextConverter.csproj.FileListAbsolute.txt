@@ -1,0 +1,14 @@
+D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextConverter\bin\Debug\ImageTextConverter.exe.config
+D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextConverter\bin\Debug\ImageTextConverter.exe
+D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextConverter\bin\Debug\ImageTextConverter.pdb
+D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextConverter\obj\Debug\MainWindow.g.cs
+D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextConverter\obj\Debug\App.g.cs
+D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextConverter\obj\Debug\ImageTextConverter_MarkupCompile.cache
+D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextConverter\obj\Debug\ImageTextConverter_MarkupCompile.lref
+D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextConverter\obj\Debug\MainWindow.baml
+D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextConverter\obj\Debug\ImageTextConverter.g.resources
+D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextConverter\obj\Debug\ImageTextConverter.Properties.Resources.resources
+D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextConverter\obj\Debug\ImageTextConverter.csproj.GenerateResource.cache
+D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextConverter\obj\Debug\ImageTextConverter.csproj.CoreCompileInputs.cache
+D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextConverter\obj\Debug\ImageTextConverter.exe
+D:\Programming\Source - Visual Studio\Author Apps\ImageTextConverter\ImageTextConverter\obj\Debug\ImageTextConverter.pdb

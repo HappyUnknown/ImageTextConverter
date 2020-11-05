@@ -1,0 +1,1 @@
+[05.11.2020 15:54:15] ApplyResolution()-> Max sizes for image were changed to W:474 H:461.

@@ -5,22 +5,31 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ImageTextConverter"
         mc:Ignorable="d"
-        Title="Converter" Height="540" Width="526">
+        Title="Converter" Height="529" Width="526" Closing="Window_Closing" SizeChanged="Window_SizeChanged" >
     <Grid>
         <StackPanel>
             <WrapPanel>
-                <Button x:Name="btnChooseFile" Click="btnChooseFile_Click" Content="File" Width="50" Height="50"/>
-                <Button x:Name="btnChooseFolder" Click="btnChooseFolder_Click" Content="Folder" Width="50" Height="50"/>
-                <Button x:Name="btnRestoreFiles" Click="btnRestoreFiles_Click" Content="Restore"  Width="100" Height="50"/>
-                <Button x:Name="btnChangeResult" Click="btnChangeResult_Click" Content="Change" Width="50" Height="50" Margin="0 0 10 0"/>
-                <TextBox x:Name="tbWidth" Width="100" FontSize="23"/>
-                <Button x:Name="btnApply" Click="btnApply_Click" Width="50"/>
-                <TextBox x:Name="tbHeight" Width="100" FontSize="23"/>
+                <Button x:Name="btnChooseFolder" Click="btnChooseFolder_Click" Content="Folder" Width="40" Height="25" FontSize="10"/>
+                <Button x:Name="btnChangeResult" Click="btnChangeResult_Click" Content="Change" Width="40" Height="25" FontSize="10"/>
+                <Button x:Name="btnRestoreFiles" Click="btnRestoreFiles_Click" Content="Unarchive"  Width="40" Height="25" FontSize="8"/>
+                <Button x:Name="btnLoadFile" Click="btnLoadFile_Click"  Content="Reload" Width="40" Height="25" FontSize="10"/>
+                <Button x:Name="btnSplitFile" Click="btnSplitFile_Click" Content="Split" Width="40" Height="25" FontSize="10" Margin="0 0 60 0"/>
+                <TextBox x:Name="tbWidth" Width="80" Height="25" FontSize="18"/>
+                <Button x:Name="btnApply" Click="btnApply_Click" Width="50" Height="25" Content="X"/>
+                <TextBox x:Name="tbHeight" Width="80" Height="25" FontSize="18"/>
             </WrapPanel>
             <WrapPanel>
-                <Button x:Name="btnPrev" Content="&lt;" Width="30" Click="btnPrev_Click"/>
+                <Button x:Name="btnPrev" Content="&lt;" Width="30" Height="450" PreviewKeyDown="PreviewKeyDownAnalyzer" Click="btnPrev_Click"/>
                 <Image Name="imgFile" Width="450" Height="450"/>
-                <Button x:Name="btnNext" Content=">" Width="30" Click="btnNext_Click"/>
+                <MediaElement Name="vidFile" Width="450" Height="450" Visibility="Collapsed" />
+                <Button x:Name="btnNext" Content=">" Width="30" Height="450"  PreviewKeyDown="PreviewKeyDownAnalyzer"  Click="btnNext_Click"/>
+            </WrapPanel>
+            <WrapPanel>
+                <Button x:Name="btnAddElement" Click="btnAddElement_Click" Content="+" Height="20" Width="255"/>
+                <Button x:Name="btnRemoveElement" Click="btnRemoveElement_Click" Content="-" Height="20" Width="255"/>
+            </WrapPanel>
+            <WrapPanel>
+                <Button x:Name="btnAutoSwitch" Content="Auto switch" Height="20" Width="510" Click="btnAutoSwitch_Click"/>
             </WrapPanel>
         </StackPanel>
     </Grid>

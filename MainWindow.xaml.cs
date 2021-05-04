@@ -362,7 +362,6 @@ namespace ImageTextConverter
         }
         List<string> GetNames(List<string> cf)
         {
-            MessageBox.Show(cf[0]);
             List<string> fs = new List<string>();
             string[] rawArr;
             for (int i = 0; i < cf.Count; i++)
@@ -631,7 +630,7 @@ namespace ImageTextConverter
                 }
             }
         }
-        List<string> GetNamesByPaths(List<string>paths) 
+        List<string> GetNamesByPaths(List<string> paths)
         {
             for (int i = 0; i < paths.Count; i++)
             {
@@ -649,6 +648,7 @@ namespace ImageTextConverter
                 if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     currentFile.Add(FileToBase64(ofd.FileName));
+                    if (names == null) names = GetNames(File.ReadAllLines(resPath).ToList());
                     names.Add(GetFileName(ofd.FileName).Replace(' ', specSymbol));
                     MessageBox.Show(names[names.Count - 1]);
                     //    await 
@@ -1329,40 +1329,42 @@ namespace ImageTextConverter
         }
         private void btnAutoSwitch_Click(object sender, RoutedEventArgs e)
         {
-            if (!IsVideo(currentFile[currentRow]) && btnLoadFile.Background != Brushes.Teal)
-            {
-                if (timer.IsEnabled)
+            if (currentRow >= 0 && currentRow < currentFile.Count)
+                if (!IsVideo(currentFile[currentRow]) && btnLoadFile.Background != Brushes.Teal)
                 {
-                    if (timer.Interval < TimeSpan.FromSeconds(1))
+                    if (timer.IsEnabled)
                     {
-                        StopTimer();
+                        if (timer.Interval < TimeSpan.FromSeconds(1))
+                        {
+                            StopTimer();
+                        }
+                        else
+                        {
+                            timer.Interval = TimeSpan.FromSeconds(timer.Interval.TotalSeconds / 2);
+                            btnAutoSwitch.Content = "Auto switch (" + timer.Interval + ")";
+                        }
                     }
                     else
                     {
-                        timer.Interval = TimeSpan.FromSeconds(timer.Interval.TotalSeconds / 2);
+                        timer.Interval = TimeSpan.FromSeconds(20);
+                        timer.Tick += timer_Tick;
+                        btnAutoSwitch.Background = Brushes.DarkGreen;
                         btnAutoSwitch.Content = "Auto switch (" + timer.Interval + ")";
+                        timer.Start();
                     }
+                    //MessageBox.Show("NotAVideo");
                 }
                 else
                 {
-                    timer.Interval = TimeSpan.FromSeconds(20);
-                    timer.Tick += timer_Tick;
-                    btnAutoSwitch.Background = Brushes.DarkGreen;
-                    btnAutoSwitch.Content = "Auto switch (" + timer.Interval + ")";
-                    timer.Start();
-                }
-                //MessageBox.Show("NotAVideo");
-            }
-            else
-            {
-                //MessageBox.Show("btnAutoSwitch_Click video");
-                SlowenVideo();
-                if (btnLoadFile.Background == Brushes.LightGray)
-                {
-                    btnAutoSwitch.Content = "Playback speed (" + playSpeed + ")";
+                    //MessageBox.Show("btnAutoSwitch_Click video");
+                    SlowenVideo();
+                    if (btnLoadFile.Background == Brushes.LightGray)
+                    {
+                        btnAutoSwitch.Content = "Playback speed (" + playSpeed + ")";
 
+                    }
                 }
-            }
+            else MessageBox.Show("currentRow <= 0: " + currentRow);
         }
         void SpeedupVideo()
         {

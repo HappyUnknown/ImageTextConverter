@@ -647,10 +647,13 @@ namespace ImageTextConverter
                 ofd.Filter = "All|*.*|Image|*.jpg;*.jpeg;*.png|Video|*.mp4";
                 if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
+                    if (ofd.FileName.Contains(".txt"))
+                        if (MessageBox.Show("Do you really want to add txt to file?", "New arcive element", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                            return;
                     currentFile.Add(FileToBase64(ofd.FileName));
                     if (names == null) names = GetNames(File.ReadAllLines(resPath).ToList());
                     names.Add(GetFileName(ofd.FileName).Replace(' ', specSymbol));
-                    MessageBox.Show(names[names.Count - 1]);
+                    MessageBox.Show("File " + names[names.Count - 1] + " will be added.");
                     //    await 
                     //        Task.Run(() => );
                     if (withName)
@@ -1133,6 +1136,9 @@ namespace ImageTextConverter
             {
                 try
                 {
+                    if (!ofd.FileName.Contains(".txt"))
+                        if (MessageBox.Show("Do you really want to switch to non-txt?", "Changing result file", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                            return;
                     WriteToLog("Resulting file path changed from: \"" + Environment.CurrentDirectory + resPath + "\" to \"" + ofd.FileName + "\" [Tip: if dictionary is not changing anyway - then try reopening the app]", new StackTrace());
                     ResetDefaults();
                     resPath = ofd.FileName;

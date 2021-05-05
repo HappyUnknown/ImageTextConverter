@@ -1,0 +1,2 @@
+LastNames>C:\Users\User\Desktop\Новый текстовый документ_namesfile.txt
+LastDictionary>C:\Users\User\Desktop\Новый текстовый документ.txt
